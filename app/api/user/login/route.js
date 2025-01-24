@@ -1,48 +1,72 @@
 import { PrismaClient } from "@prisma/client";
 import { createToken, verifyPassword } from "@/lib/auth";
+import { verifyToken } from "../../../../lib/auth";
 
 const prisma = new PrismaClient();
 
 export async function POST(req) {
   try {
-    const body = await req.json();
-    const { email, password } = body;
-
+    const { email, password } = await req.json();
     if (!email || !password) {
       return new Response(
-        JSON.stringify({ error: "Email and password are required" }),
+        JSON.stringify({ message: "Email and password are required" }),
         { status: 400 }
       );
     }
-
     const user = await prisma.user.findUnique({
       where: { email },
     });
-
     if (!user) {
-      return new Response(JSON.stringify({ error: "User not found" }), {
+      return new Response(JSON.stringify({ message: "User not found" }), {
         status: 404,
       });
     }
-
     const isValid = await verifyPassword(password, user.password);
-
     if (!isValid) {
-      return new Response(JSON.stringify({ error: "Invalid password" }), {
+      return new Response(JSON.stringify({ message: "Invalid password" }), {
         status: 401,
       });
     }
-
     const token = createToken({ id: user.id, email: user.email });
-
     return new Response(JSON.stringify({ token }), { status: 200 });
   } catch (error) {
-    console.error("Error during login:", JSON.stringify(error));
-
-    return new Response(JSON.stringify({ error: "Login failed" }), {
+    console.error(error);
+    return new Response(JSON.stringify({ message: "Login failed" }), {
       status: 500,
     });
   } finally {
-    await prisma.$disconnect(); // Ensure Prisma client disconnects properly
+    await prisma.$disconnect();
+  }
+}
+
+export async function GET(req) {
+  try {
+    const authorization = req.headers.get("authorization");
+    const token = authorization?.split(" ")[1];
+    if (!token) {
+      return new Response(JSON.stringify({ message: "Token not found" }), {
+        status: 401,
+      });
+    }
+    const { userId } = verifyToken(token);
+    console.log(JSON.stringify(userId));
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      return new Response(JSON.stringify({ message: "User not found" }), {
+        status: 401,
+      });
+    }
+    delete user.password;
+
+    return new Response(JSON.stringify(user), { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return new Response(JSON.stringify({ message: "Unauthorized" }), {
+      status: 401,
+    });
+  } finally {
+    await prisma.$disconnect();
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,8 +17,9 @@ export default function AuthForm() {
       },
       body: JSON.stringify({ email, password }),
     });
-
     if (res.ok) {
+      const { token } = await res.json();
+      localStorage.setItem("token", token);
       setIsLoggedIn(true);
     } else {
       alert("Login failed");
@@ -38,8 +39,8 @@ export default function AuthForm() {
 
     if (res.ok) {
       setIsLoggedIn(true);
+      localStorage.setItem("token", await res.json().token);
     } else {
-      console.log(await res.json());
       alert("Signup failed");
     }
   };
@@ -55,7 +56,21 @@ export default function AuthForm() {
     setEmail("");
     setPassword("");
   };
-
+  useEffect(() => {
+    (async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const res = await fetch("/api/user/login", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (res.ok) {
+          setIsLoggedIn(true);
+        }
+      }
+    })();
+  }, []);
   if (isLoggedIn) {
     return (
       <div style={{ textAlign: "center", marginTop: "50px" }}>
@@ -63,7 +78,6 @@ export default function AuthForm() {
       </div>
     );
   }
-
   return (
     <div
       style={{
