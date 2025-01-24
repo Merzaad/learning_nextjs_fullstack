@@ -5,6 +5,8 @@ export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const handleLogin = async (e) => {
@@ -45,6 +47,19 @@ export default function AuthForm() {
     }
   };
 
+  const onSubmitProfile = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    await fetch("/api/user/profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ firstname, lastname }),
+    });
+  };
+
   const switchToLogin = () => {
     setIsLogin(true);
     setEmail("");
@@ -56,6 +71,7 @@ export default function AuthForm() {
     setEmail("");
     setPassword("");
   };
+
   useEffect(() => {
     (async () => {
       const token = localStorage.getItem("token");
@@ -71,13 +87,7 @@ export default function AuthForm() {
       }
     })();
   }, []);
-  if (isLoggedIn) {
-    return (
-      <div style={{ textAlign: "center", marginTop: "50px" }}>
-        You are logged in!
-      </div>
-    );
-  }
+
   return (
     <div
       style={{
@@ -85,144 +95,167 @@ export default function AuthForm() {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        backgroundColor: "#121212",
       }}
     >
       <div
         style={{
-          width: "300px",
-          padding: "20px",
-          border: "1px solid #ccc",
-          borderRadius: "10px",
+          width: "100%",
+          maxWidth: "400px",
+          padding: "30px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.3)",
+          backgroundColor: "#1e1e1e",
         }}
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "20px",
-          }}
-        >
-          <button
-            onClick={switchToLogin}
+        <div style={{ textAlign: "center", marginBottom: "20px" }}>
+          <h2 style={{ fontSize: "24px", marginBottom: "10px", color: "#fff" }}>
+            {isLoggedIn ? "Update Your Profile" : isLogin ? "Login" : "Signup"}
+          </h2>
+          <p
             style={{
-              flex: 1,
-              padding: "10px",
-              backgroundColor: isLogin ? "#0070f3" : "#fff",
-              color: isLogin ? "#fff" : "#000",
-              border: "none",
-              cursor: "pointer",
+              color: "#bbb",
+              fontSize: "14px",
+              marginBottom: "20px",
             }}
           >
-            Login
-          </button>
-          <button
-            onClick={switchToSignup}
-            style={{
-              flex: 1,
-              padding: "10px",
-              backgroundColor: !isLogin ? "#0070f3" : "#fff",
-              color: !isLogin ? "#fff" : "#000",
-              border: "none",
-              cursor: "pointer",
-            }}
-          >
-            Signup
-          </button>
+            {isLoggedIn
+              ? "Fill in your details to complete your profile."
+              : isLogin
+              ? "Please log in to continue."
+              : "Create a new account to get started."}
+          </p>
         </div>
-        {isLogin ? (
-          <form
-            onSubmit={handleLogin}
-            style={{ display: "flex", flexDirection: "column" }}
-          >
+
+        {isLoggedIn ? (
+          <form onSubmit={onSubmitProfile}>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
+              type="text"
+              value={firstname}
+              onChange={(e) => setFirstname(e.target.value)}
+              placeholder="First Name"
               required
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
+              style={inputStyle}
             />
             <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              type="text"
+              value={lastname}
+              onChange={(e) => setLastname(e.target.value)}
+              placeholder="Last Name"
               required
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
+              style={inputStyle}
             />
-            <button
-              type="submit"
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "none",
-                backgroundColor: "#0070f3",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Login
+            <button type="submit" style={buttonStyle}>
+              Save Profile
             </button>
           </form>
         ) : (
-          <form
-            onSubmit={handleSignup}
-            style={{ display: "flex", flexDirection: "column" }}
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              required
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-              required
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                padding: "10px",
-                margin: "10px 0",
-                borderRadius: "5px",
-                border: "none",
-                backgroundColor: "#0070f3",
-                color: "#fff",
-                cursor: "pointer",
-              }}
-            >
-              Signup
-            </button>
-          </form>
+          <>
+            <div style={{ display: "flex", marginBottom: "20px" }}>
+              <button
+                onClick={switchToLogin}
+                style={{
+                  ...authButtonStyle,
+                  backgroundColor: isLogin ? "#0070f3" : "#333",
+                  color: isLogin ? "#fff" : "#0070f3",
+                }}
+              >
+                Login
+              </button>
+              <button
+                onClick={switchToSignup}
+                style={{
+                  ...authButtonStyle,
+                  backgroundColor: !isLogin ? "#0070f3" : "#333",
+                  color: !isLogin ? "#fff" : "#0070f3",
+                }}
+              >
+                Signup
+              </button>
+            </div>
+
+            {isLogin ? (
+              <form onSubmit={handleLogin}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  required
+                  style={inputStyle}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                  style={inputStyle}
+                />
+                <button type="submit" style={buttonStyle}>
+                  Login
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleSignup}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                  required
+                  style={inputStyle}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  required
+                  style={inputStyle}
+                />
+                <button type="submit" style={buttonStyle}>
+                  Signup
+                </button>
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>
   );
 }
+
+const inputStyle = {
+  padding: "12px 15px",
+  marginBottom: "12px",
+  width: "100%",
+  borderRadius: "6px",
+  border: "1px solid #444",
+  fontSize: "16px",
+  outline: "none",
+  backgroundColor: "#333",
+  color: "#fff",
+};
+
+const buttonStyle = {
+  padding: "12px 15px",
+  width: "100%",
+  borderRadius: "6px",
+  border: "none",
+  backgroundColor: "#0070f3",
+  color: "#fff",
+  fontSize: "16px",
+  cursor: "pointer",
+  transition: "background-color 0.3s",
+};
+
+const authButtonStyle = {
+  flex: 1,
+  padding: "12px",
+  border: "1px solid #444",
+  borderRadius: "6px",
+  fontSize: "16px",
+  cursor: "pointer",
+  transition: "background-color 0.3s, color 0.3s",
+};

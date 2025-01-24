@@ -53,6 +53,9 @@ export async function GET(req) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
+    const profile = await prisma.profile.findUnique({
+      where: { userId },
+    });
     if (!user) {
       return new Response(JSON.stringify({ message: "User not found" }), {
         status: 401,
@@ -60,9 +63,9 @@ export async function GET(req) {
     }
     delete user.password;
 
-    return new Response(JSON.stringify(user), { status: 200 });
+    return new Response(JSON.stringify({ user, profile }), { status: 200 });
   } catch (error) {
-    console.error(error);
+    console.error(JSON.stringify(error));
     return new Response(JSON.stringify({ message: "Unauthorized" }), {
       status: 401,
     });
