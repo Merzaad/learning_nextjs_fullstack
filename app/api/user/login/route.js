@@ -28,7 +28,10 @@ export async function POST(req) {
       });
     }
     const token = createToken({ id: user.id, email: user.email });
-    return new Response(JSON.stringify({ token }), { status: 200 });
+    const profile = await prisma.profile.findUnique({
+      where: { userId: user.id },
+    });
+    return new Response(JSON.stringify({ token, profile }), { status: 200 });
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ message: "Login failed" }), {
@@ -49,21 +52,16 @@ export async function GET(req) {
       });
     }
     const { userId } = verifyToken(token);
-    console.log(JSON.stringify(userId));
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
     const profile = await prisma.profile.findUnique({
       where: { userId },
     });
-    if (!user) {
+    if (!profile) {
       return new Response(JSON.stringify({ message: "User not found" }), {
         status: 401,
       });
     }
-    delete user.password;
 
-    return new Response(JSON.stringify({ user, profile }), { status: 200 });
+    return new Response(JSON.stringify({ profile }), { status: 200 });
   } catch (error) {
     console.error(JSON.stringify(error));
     return new Response(JSON.stringify({ message: "Unauthorized" }), {
