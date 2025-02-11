@@ -5,6 +5,7 @@ import Login from "./_component/Login";
 import Signup from "./_component/Singup";
 import { useSelector } from "react-redux";
 import { selectIsLoggedIn } from "../_redux/profile";
+import Profile from "./_component/Profile";
 
 export default function AuthForm() {
   const isLoggedIn = useSelector(selectIsLoggedIn);
@@ -18,7 +19,9 @@ export default function AuthForm() {
     >
       <Box display="flex" alignItems="center" justifyContent="center" gap={2}>
         {isLoggedIn ? (
-          <>Logged in</>
+          <>
+            <Profile />
+          </>
         ) : (
           <>
             <Login /> <Signup />

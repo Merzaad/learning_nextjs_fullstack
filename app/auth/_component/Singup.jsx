@@ -58,7 +58,7 @@ export default function Signup() {
       alignItems="center"
     >
       <Typography variant="h3" component="h3">
-        Signup
+        ثبت نام
       </Typography>
       <TextField
         type="email"
@@ -68,8 +68,7 @@ export default function Signup() {
             draft.email = e.target.value;
           })
         }
-        placeholder="Email"
-        label="Email"
+        label="ایمیل"
         required
       />
       <TextField
@@ -80,8 +79,7 @@ export default function Signup() {
             draft.firstname = e.target.value;
           })
         }
-        placeholder="Firstname"
-        label="Firstname"
+        label="نام"
         required
       />
       <TextField
@@ -92,8 +90,7 @@ export default function Signup() {
             draft.lastname = e.target.value;
           })
         }
-        placeholder="Lastname"
-        labe="Lastname"
+        label="نام خانوادگی"
         required
       />
       <TextField
@@ -104,12 +101,11 @@ export default function Signup() {
             draft.password = e.target.value;
           })
         }
-        placeholder="Password"
-        label="Password"
+        label="رمز عبور"
         required
       />
       <Button variant="contained" color="info" type="submit">
-        Signup
+        ثبت نام
       </Button>
       <Snackbar
         open={!!state.error}
